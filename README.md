@@ -1,14 +1,17 @@
 # Implementing Go in Excel
 
 ## Acknowledgements
-Thank you to Jackson Stogel for aiding in the design of the algorithm. Thank you to Google for their excellent Google Sheets API for Python.
+Thank you to Jackson Stogel for aiding in the initial design of the algorithm. Thank you to Google for Google Sheets.
 
 ## Link to spreadsheet
 [Go!](https://docs.google.com/spreadsheets/d/1gG7IEcn6ETNCPRCLQVSyg1UzcpmbLMmCHvcSHdFltUw/edit#gid=0)
 
+## Demo
+[A modern joseki in Excel.](images/sgf.gif)
+
 ## Objective
 
-The objective of this project is to implement a fully-functioning game of [Go](https://en.wikipedia.org/wiki/Go\_\(game\)) entirely in Google Sheets.
+The objective of this project was to implement a fully-functioning game of [Go](https://en.wikipedia.org/wiki/Go\_\(game\)) entirely in Google Sheets. We almost got there!
 
 ## Motivation
 
@@ -20,12 +23,12 @@ Here are some reasons why I did this:
 
 And why I did it the way I did:
 
-  * Google Sheets has a Python API, so creation of sheets can be partially automated
-  * Needless to say, I didn't use any Python and made this by hand completely. Did I mention the excruciating part?
+  * Google Sheets has an effective and easy-to-use Python API, so creation of sheets can be partially automated
+  * So naturally, I didn't end up using any Python and made this by hand completely. Did I mention the excruciating part?
 
 ## Sheets Description
 
-Following is a description of each of the sheets in the document, and what they do.
+Following is a description of each of the sheets in the document, and a bit of insight into how they work.
 
 ### board
 Displays the 19x19 playing board.
@@ -47,9 +50,9 @@ This sheet enumerates each cell with an identifier from 1 to 361.
 ### black\_bfs
 Identifies black [groups](https://en.wikipedia.org/wiki/Go\_\(game\)) on the board.
 
-The algorithm is a standard bfs search (flood fill), with depth states represented by each 21x21 block of data (also referred to as "state"). The first state is a copy of the `base\_ids`. Every state transition (transition from one data block to the next), we take each cell in the last 19x19 grid and set it equal to the minimum of all black neighboring stones (including itself). This will result in an eventual convergent state where each group is marked by one ID (specifically, the smallest original `base\_id` of any stone in the group).
+The algorithm is a standard breadth-first search (bfs), more specifically known as flood-fill, with depth states represented by each 21x21 block of data (also referred to as "state"). The first state is a copy of the `base\_ids`. Every state transition (transition from one data block to the next), we take each cell in the last 19x19 grid and set it equal to the minimum of all black neighboring stones (including itself). This will result in an eventual convergent state where each group is marked by one ID (specifically, the smallest original `base\_id` of any stone in the group).
 
-There are a total of 361 states, which is certainly overkill for the board (question for the reader: how many states are necessary to traverse any given group?). We use the last one as the convergent state. This comes out to 361 \* 21 = 7,581 rows.
+There are a total of 90 states, which is certainly not enough for a 19x19 board (question for the reader: how many states are necessary to traverse any given group?). We use the last one as the convergent state. This comes out to 90 x 21 = approximately 2000 rows.
 
 ### white\_bfs
 Identifies white groups on the board.
@@ -58,12 +61,58 @@ Identifies white groups on the board.
 ### black\_group\_liberties
 Accumulates liberty counts for black groups to count for dead stones.
 
-For each cell, we add up all cells' liberty values from `liberties` if they have the same ID as the current cell (using the ARRAYFORMULA function). This should correctly indicate when groups are dead.
+For each cell, add up all cells' liberty values from `liberties` if they have the same ID as the current cell (using the ARRAYFORMULA function). Also add up the total size of each group. If the group is of non-zero size and zero liberties, mark the rightmost column 1 to indicate death.
+
+**Note:** This only marks the stone with the minimum ID from each group! We have a final step to make sure all stones in the group are marked dead, not just that stone.
 
 ### white\_group\_liberties
 Accumulates liberty counts for white groups to count for dead stones.
 
 ### redmap
-Marks dead stones.
+Marks dead stones based on the last columns of the group liberties sheets.
 
-The ostensibly white cells on `board` actually refer to these values.
+Here's the (short) method:
+
+  * The goal is to mark every cell False if it belongs to a live group, and True if it belongs to a dead group.
+  * For both the black and white groups:
+    * Get the group index (ID of minimum ID stone in the group) via the already computed bfs sheets.
+    * Use that group index to index into the group liberties sheet, and see if that group index was marked dead.
+  * If either returned True (dead), return True as well.
+
+The ostensibly white cells on `board` actually refer to these values, and are used to color the board.
+
+## Known issues
+I welcome any feedback on how to implement/fix these issues!
+
+### Mechanics
+  * An capture that also puts your stone into "capture" will be marked red.
+  * Ko is not guarded against.
+  * **Because of computational restraints, groups of more than 90 stones may not be red-colored properly (bfs "stack" limit)**
+
+### Visuals
+  * Can we figure out how to properly conditionally format from a different sheet so that I don't need the whitespace next to the board (which hides values copied from `redmap`)
+
+## Goals for the Future
+(aside from bug-fixing)
+
+  * **Efficiency**: Each move takes 10 seconds to appear on my computer. While not the worst thing in the world, it might be nice to increase efficiency or reduce iteration depth.
+  * **Scoring**: How can we estimate score?
+
+
+## Development Timeline:
+March 4, 2020:
+  * 11:00 AM: Read about the idea due to redditor /u/ChairmanWill's request on /r/baduk
+  * 11:15 AM: Literally spoke the words "wow, this will take 5 sceonds to implement" to housemate (Jackson)
+  * 11:22 AM: Realized this was so false after he pointed out bfs would probably be necessary.
+  * 11:38 AM: Began looking into GoogleSheets API for Python and considering how long it would take vs. hand editing.
+
+March 5, 2020:
+  * 1:00 AM: Decided against the API and implemented `board` and `liberties` by hand.
+  * 1:40 AM: Becamse confused and started writing up a README design doc to help clarify the full algorithm before I burnt the nex 7 hours for nothing.
+  * 2:00 AM: Began the long trial and error copy-paste that was to become the `black\_bfs` and `white\_bfs` files respectively.
+  * 3:00 AM: Panicked because I forgot about shared liberties, but realized it didn't matter because we just need to check if they sum to 0 or not.
+  * 4:00 AM: Took a stretch break.
+  * 6:00 AM: Finished the post-bfs calculation sheets.
+  * 8:00 AM: Aligning `redmap` cells to `board` cells for formatting was much harder than expected, and took 40 minutes. I think someone who knew Excel well would be able to do it much faster.
+  * 9:00 AM: Finished main part of writeup.
+  * 9:40 AM: Jackson woke up and notified me of the mutual capture red higlighting issue.
