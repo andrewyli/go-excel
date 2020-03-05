@@ -11,13 +11,13 @@ The objective of this project is to implement a fully-functioning game of [Go](h
 
 Here are some reasons why I did this:
 
-    - Someone on Reddit mentioned they'd like to have it
-    - It's Go in a format easily accessible to anyone with Google Drive (basically anyone these days), no apps needed.
-    - It's excruciatingly funny and excruciating, but mainly excruciating
+  * Someone on Reddit mentioned they'd like to have it
+  * It's Go in a format easily accessible to anyone with Google Drive (basically anyone these days), no new apps/accounts required
+  * It's excruciatingly funny and excruciating (but mainly excruciating, it's only funny for the first hour past 12 AM)
 
 And why I did it the way I did:
 
-    - Google Sheets has a Python API, so creation of sheets can be partially automated
+  * Google Sheets has a Python API, so creation of sheets can be partially automated
 
 ## Sheets Description
 
@@ -47,5 +47,5 @@ The algorithm is a standard bfs search, with depth states represented by each 21
 
 There are a total of 361 states, which is certainly overkill for the board (question for the reader: how many states are necessary to traverse any given group?). We use the last one as the convergent state.
 
-###
+### white\_bfs
 Identifies white groups on the board.
