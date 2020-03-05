@@ -9,7 +9,7 @@ Thank you to Jackson Stogel for aiding in the initial design of the algorithm. T
 ## Demo
 ![](images/sgf.gif)
 
-A modern joseki in Excel.
+A modern joseki (go term for "opening") in Excel.
 
 ## Usage
 
