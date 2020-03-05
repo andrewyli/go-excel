@@ -7,7 +7,8 @@ Thank you to Jackson Stogel for aiding in the initial design of the algorithm. T
 [Go!](https://docs.google.com/spreadsheets/d/1gG7IEcn6ETNCPRCLQVSyg1UzcpmbLMmCHvcSHdFltUw/edit#gid=0)
 
 ## Demo
-[A modern joseki in Excel.](images/sgf.gif)
+![](images/sgf.gif)
+A modern joseki in Excel.
 
 ## Objective
 
