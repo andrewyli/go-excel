@@ -13,6 +13,8 @@ A modern joseki (go term for "opening") in Excel.
 
 ## Usage
 
+First, make a copy of the spreadsheet so you can edit it (File...Make a copy).
+
 Enter in one letter at a time ("b" or "w") exactly into the grid on `board`. When cells become red, delete them from the board (captures). You'll find that entire process of entering and waiting for the move to be colored takes around 7-10 seconds because of our Excel computational scheme. In a normal game, this hopefully will not be an issue. If you want to play a bunch of moves both sides know they are going to play anyway, you can input them fast with no breaking of code. Share with a friend to play a game over Google Drive!
 
 ## Objective
